@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 typedef struct {
-    char *args; //define array of arguments
+    char **args; //define array of arguments
     char *infile; //input redirection
     char *outfile; //output redirection
     bool append; //flag indicating
@@ -13,7 +13,7 @@ typedef struct {
 //Function prototypes
 ParsedCommand* parseCmd(const char* input); //parse command input
 void free_parsedCmd(ParsedCommand* command); //free parse command
-void quitCmd(const ParsedCommand* command); //check quit or exit command
+bool quitCmd(const ParsedCommand* command); //check quit or exit command
 
 
 #endif
