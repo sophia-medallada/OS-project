@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
-C_FILES = command.c execute.c quash.c builtin.c 
-H_FILES = comand.h execute.h quash.h builtin.h 
+C_FILES = parsing_interface.c execute.c quash.c builtin.c 
+H_FILES = parsing_interface.h execute.h quash.h builtin.h 
 OBJ_FILES = $(C_FILES:.c=.o)
 all: quash 
 
