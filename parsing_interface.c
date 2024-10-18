@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 //count number of tokens in the input
 static int countToken(const char* input) {
@@ -23,9 +24,11 @@ ParsedCommand* parseCmd(const char* input) {
     command->outfile = NULL; //locate output file to NULL
     command->append = false; //locate append flag to false
     command->background = false; //locate backgroung flag to false
-
-    if(countToken(input) == 0) return command; //in case number of token is 0, return ParsedCommand
-    command->args = malloc(sizeof(char*) * (countToken(input) + 1)); //allocate memory for args (+1 for NULL termination)
+    int cntToken = countToken(input);
+    if(cntToken == 0) {
+        free(command); //in case there is not token, free the command structure
+        return NULL; }
+    command->args = malloc(sizeof(char*) * (cntToken + 1)); //allocate memory for args (+1 for NULL termination)
     char *copy = strdup(input); 
     char *token = strtok(copy, " \t\n");
     int argIndex = 0; //index of arguments in args
@@ -35,23 +38,43 @@ ParsedCommand* parseCmd(const char* input) {
             token = strtok(NULL, " \t\n");
             if (token != NULL) {
                 command->infile = strdup(token); //store the input file in ParsedCommand
+                if (command->infile == NULL) { //memory allocation failure handler
+                    free_parsedCmd(command);
+                    free(copy);
+                    return NULL;
+                }
             }
         } else if (strcmp(token, ">") == 0) { //in case token is '>' (specifies an output file), the next token become the output file
             token = strtok(NULL, " \t\n");
             if (token != NULL) {
                 command->outfile = strdup(token); //store the output file in ParsedCommand
+                if (command->outfile == NULL) { //memory allocation failure handler
+                    free_parsedCmd(command);
+                    free(copy);
+                    return NULL;
+                }
                 command->append = false; //set append mode to false
             }
         } else if (strcmp(token, ">>") == 0) { //in case the token is '>>' (append to the file), the next token become the output file
             token = strtok(NULL, " \t\n");
             if (token != NULL) {
                 command->outfile = strdup(token); //store the output file
+                if (command->outfile == NULL) { //memory allocation failure handler
+                    free_parsedCmd(command);
+                    free(copy);
+                    return NULL;
+                }
                 command->append = true; //set append mode to true
             }
         } else if (strcmp(token, "&") == 0) { //in case the token is '&' (execute background), set background flag to true
             command->background = true; 
         } else { //otherwise, define as a regular argument
             command->args[argIndex++] = strdup(token); //store the argument in args
+            if (command->args[argIndex - 1] == NULL) { //memory allocation failure handler
+                    free_parsedCmd(command);
+                    free(copy);
+                    return NULL;
+                }
         }
         token = strtok(NULL, " \t\n"); //continue with the next token
     }
@@ -80,7 +103,7 @@ void free_parsedCmd(ParsedCommand* command) {
 
 //check the quit or exit command
 bool quitCmd(const ParsedCommand* command) {
-    if (command->args == NULL || command->args[0] == NULL) { //in case there is no arguments, this is not a quit command
+    if (command == NULL || command->args == NULL || command->args[0] == NULL) { //in case there is no arguments, this is not a quit command
         return false;
     }
     //if the argument is "quit" or "exit", return true
