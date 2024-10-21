@@ -1,4 +1,4 @@
-#include "parsing_interface.c"
+#include "parsing_interface.h"
 #include "execute.h"
 #include <stdio.h>
 #include <stdlib.h>
