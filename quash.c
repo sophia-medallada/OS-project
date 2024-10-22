@@ -15,7 +15,7 @@ void Quash() { //main function of Quash
      while (1) { //create loop for the running shell
          printf("[QUASH]$ "); //print the prompt
         if (fgets(input, sizeof(input), stdin) == NULL) { //in case the input is empty or there is an error while reading input
-            //perror("fgets"); //print error message
+            perror("fgets"); //print error message
             break; //then break the loop
         }
         ParsedCommand command; //parse the input command
@@ -31,7 +31,7 @@ void Quash() { //main function of Quash
 }
 
 void quashCleanup() { //free all resources befor exiting
-    printf("Exiting Quash...\n");
+    printf("Exit...\n");
 }
 
 int main() {
