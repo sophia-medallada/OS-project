@@ -11,7 +11,7 @@ typedef struct {
 } ParsedCommand;
 
 //Function prototypes
-ParsedCommand* parseCmd(const char* input); //parse command input
+bool parseCmd(const char* input, ParsedCommand* command); //parse command input
 void free_parsedCmd(ParsedCommand* command); //free parse command
 
 
