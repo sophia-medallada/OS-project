@@ -1,18 +1,31 @@
-#include "parsing_interface.h"
 #include "execute.h"
+#include "builtin.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h> //POSIX operating system API
 #include <sys/types.h> //data types
 #include <sys/wait.h> //waitpid function
+#include <fcntl.h>
 
 
 //execute parsed command
 void execCmd(const ParsedCommand* command) {
+    if (quitCmd(command)) {
+        exit(0);
+    }
     pid_t pid = fork(); //fork a new process
     //child process
     if (pid == 0) { 
+        if (command->infile != NULL) {
+            int inputFile = open(command->infile, O_RDONLY);
+            if (inputFile < 0) {
+                perror("Cannot open input file");
+                exit(1);
+            }
+            dup2(inputFile, STDIN_FILENO);
+            close(inputFile);
+        }
         if (command->outfile != NULL) {
             FILE *file; //handle the output redirection, declare a pointer for the output file
             if (command->append) {
@@ -29,7 +42,7 @@ void execCmd(const ParsedCommand* command) {
         }
         //execute the whole command from the user input
         execvp(command->args[0], command->args); //replace current process wirh a new process
-        perror("Cannot execute command"); //print error message if execvp fails
+        perror("execvp fail"); //print error message if execvp fails
         exit(1); //exit child process
         } else if (pid < 0) {
             perror("Fork failed"); //print out fork error message
