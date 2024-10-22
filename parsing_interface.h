@@ -13,7 +13,6 @@ typedef struct {
 //Function prototypes
 ParsedCommand* parseCmd(const char* input); //parse command input
 void free_parsedCmd(ParsedCommand* command); //free parse command
-bool quitCmd(const ParsedCommand* command); //check quit or exit command
 
 
 #endif
