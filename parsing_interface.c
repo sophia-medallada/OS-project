@@ -17,8 +17,8 @@ static int countToken(const char* input) {
     return count;
 }
 
-ParsedCommand* parseCmd(const char* input) { 
-    ParsedCommand *command = malloc(sizeof(ParsedCommand)); //allocate memory for ParsedCommand
+bool parseCmd(const char* input, ParsedCommand* command) { 
+   // ParsedCommand *command = malloc(sizeof(ParsedCommand)); //allocate memory for ParsedCommand
     command->args = NULL; //locate args to NULL
     command->infile = NULL; //locate input file to NULL
     command->outfile = NULL; //locate output file to NULL
@@ -36,13 +36,17 @@ ParsedCommand* parseCmd(const char* input) {
     while (token != NULL) {
         if (strcmp(token, "<") == 0) { //in case token is '<' (specifies an input file), the next token become the input file
             token = strtok(NULL, " \t\n");
-            if (token != NULL) {
-                command->infile = strdup(token); //store the input file in ParsedCommand
-                if (command->infile == NULL) { //memory allocation failure handler
+            if (token == NULL) {
+                fprintf(stderr, "invalid input file");
+                free_parsedCmd(command);
+                free(copy);
+                return NULL;
+            }
+            command->infile = strdup(token); //store the input file in ParsedCommand
+            if (command->infile == NULL) { //memory allocation failure handler
                     free_parsedCmd(command);
                     free(copy);
                     return NULL;
-                }
             }
         } else if (strcmp(token, ">") == 0) { //in case token is '>' (specifies an output file), the next token become the output file
             token = strtok(NULL, " \t\n");
@@ -99,13 +103,4 @@ void free_parsedCmd(ParsedCommand* command) {
         free(command->outfile);
     }
     free(command); //free the parsed command
-}
-
-//check the quit or exit command
-bool quitCmd(const ParsedCommand* command) {
-    if (command == NULL || command->args == NULL || command->args[0] == NULL) { //in case there is no arguments, this is not a quit command
-        return false;
-    }
-    //if the argument is "quit" or "exit", return true
-    return strcmp(command->args[0], "quit") == 0 || strcmp(command->args[0], "exit") == 0;
 }
