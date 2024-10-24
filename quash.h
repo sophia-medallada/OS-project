@@ -7,5 +7,6 @@
 void initQuash(); //define quash
 void Quash(); //main function to run the shell
 void quashCleanup(); //function of cleaning before exiting the quash
+void sigchild_handler(int sig);
 
 #endif
